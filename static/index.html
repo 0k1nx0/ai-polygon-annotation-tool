@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>AI Polygon Annotation Tool</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f4f4f4;
+}
+
+canvas{
+border:1px solid black;
+margin-top:20px;
+max-width:90%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>AI Auto Polygon Annotation</h2>
+
+<input type="file" id="fileInput" accept="image/*">
+
+<button onclick="upload()">Annotate</button>
+
+<br><br>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d")
+
+let img = new Image()
+
+function upload(){
+
+let file=document.getElementById("fileInput").files[0]
+
+let formData=new FormData()
+
+formData.append("file",file)
+
+fetch("/annotate",{
+
+method:"POST",
+
+body:formData
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+img.src=URL.createObjectURL(file)
+
+img.onload=function(){
+
+canvas.width=img.width
+canvas.height=img.height
+
+ctx.drawImage(img,0,0)
+
+drawPolygons(data.polygons)
+
+}
+
+})
+
+}
+
+function drawPolygons(polygons){
+
+ctx.strokeStyle="red"
+ctx.lineWidth=2
+
+polygons.forEach(poly=>{
+
+ctx.beginPath()
+
+poly.forEach((p,i)=>{
+
+if(i==0)
+ctx.moveTo(p[0],p[1])
+else
+ctx.lineTo(p[0],p[1])
+
+})
+
+ctx.closePath()
+ctx.stroke()
+
+})
+
+}
+
+</script>
+
+</body>
+
+</html>
