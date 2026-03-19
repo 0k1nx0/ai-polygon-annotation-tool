@@ -64,20 +64,19 @@ ai-polygon-annotation-tool/
 │
 ├── static/
 │   └── index.html             # Frontend UI
-│
 ├── main.py                    # FastAPI backend
 ├── Dockerfile                 # HuggingFace deployment
 ├── requirements.txt           # Python dependencies
 ├── README.md                  # Project documentation
-├── .gitignore                 # Git ignore rules
-│
-│   # These are created automatically when you run the project:
-│   # uploads/                 → temporary uploaded images
-│   # dataset/images/          → saved images
-│   # dataset/annotations/     → COCO JSON output
-│   # sam_vit_h_4b8939.pth     → download separately (2.4GB)
-│   # yolov8x-seg.pt           → auto-downloaded on first run
+└── .gitignore                 # Git ignore rules
 ```
+
+> 📝 The following are created automatically at runtime and are not in the repo:
+> - `uploads/` → temporary uploaded images
+> - `dataset/images/` → saved images
+> - `dataset/annotations/dataset.json` → COCO JSON output
+> - `sam_vit_h_4b8939.pth` → download separately (2.4GB)
+> - `yolov8x-seg.pt` → auto-downloaded on first run
 
 ---
 
