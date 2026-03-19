@@ -1,111 +1,956 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
-<title>AI Polygon Annotation Tool</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyAnnot — AI Polygon Annotation</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 
-body{
-font-family:Arial;
-text-align:center;
-background:#f4f4f4;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0a0c10;
+  --surface:   #111318;
+  --border:    #1e2230;
+  --border-hi: #2e3450;
+  --text:      #e4e8f5;
+  --muted:     #5a6080;
+  --accent:    #4f7cff;
+  --accent-2:  #00e5a0;
+  --danger:    #ff4f6b;
+  --radius:    10px;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
-canvas{
-border:1px solid black;
-margin-top:20px;
-max-width:90%;
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
+/* ── HEADER ─────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-head);
+  font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px;
+}
+.logo-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent-2);
+  box-shadow: 0 0 10px var(--accent-2);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.5; transform:scale(0.7); }
+}
+.header-badge {
+  font-size: 0.68rem; padding: 3px 10px;
+  border: 1px solid var(--border-hi);
+  border-radius: 20px; color: var(--muted);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  flex: 1;
+  height: calc(100vh - 61px);
+  overflow: hidden;
+}
+
+/* ── LEFT PANEL ─────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+}
+.panel-section { padding: 20px; border-bottom: 1px solid var(--border); }
+.panel-label {
+  font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--muted); margin-bottom: 12px;
+}
+
+/* ── DROP ZONE ───────────────────────────────────── */
+.drop-zone {
+  border: 1.5px dashed var(--border-hi);
+  border-radius: var(--radius);
+  padding: 28px 16px; text-align: center;
+  cursor: pointer; transition: all 0.2s;
+  position: relative; background: rgba(79,124,255,0.03);
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(79,124,255,0.07);
+}
+.drop-zone input[type="file"] {
+  position: absolute; inset: 0; opacity: 0;
+  cursor: pointer; width: 100%; height: 100%;
+}
+.drop-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+.drop-zone p { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+.drop-zone .file-name {
+  margin-top: 8px; font-size: 0.72rem;
+  color: var(--accent-2); word-break: break-all;
+}
+
+/* ── MODE SELECTOR ───────────────────────────────── */
+.mode-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mode-card {
+  border: 1.5px solid var(--border-hi);
+  border-radius: var(--radius);
+  padding: 12px 10px; cursor: pointer;
+  transition: all 0.18s; text-align: center;
+  background: var(--bg); user-select: none;
+}
+.mode-card:hover { border-color: var(--accent); background: rgba(79,124,255,0.06); }
+.mode-card.active { border-color: var(--accent); background: rgba(79,124,255,0.12); box-shadow: 0 0 0 1px var(--accent); }
+.mode-card.active.bbox-active { border-color: var(--accent-2); background: rgba(0,229,160,0.1); box-shadow: 0 0 0 1px var(--accent-2); }
+.mode-icon { font-size: 1.4rem; display: block; margin-bottom: 5px; }
+.mode-title { font-size: 0.72rem; font-weight: 600; color: var(--text); display: block; }
+.mode-desc { font-size: 0.62rem; color: var(--muted); margin-top: 3px; display: block; line-height: 1.4; }
+.mode-card.active .mode-title { color: var(--accent); }
+.mode-card.active.bbox-active .mode-title { color: var(--accent-2); }
+.mode-info {
+  margin-top: 10px; padding: 8px 10px;
+  border-radius: 7px; font-size: 0.68rem; line-height: 1.5;
+  color: var(--muted); background: var(--bg); border: 1px solid var(--border);
+}
+.mode-info span { color: var(--text); }
+
+/* ── BUTTONS ─────────────────────────────────────── */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; width: 100%; padding: 11px 16px;
+  border-radius: var(--radius); font-family: var(--font-mono);
+  font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s; letter-spacing: 0.5px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover:not(:disabled) {
+  background: #6b91ff; transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(79,124,255,0.35);
+}
+.btn-primary.bbox-mode { background: #0d9b6a; }
+.btn-primary.bbox-mode:hover:not(:disabled) { background: #0ec27e; box-shadow: 0 4px 20px rgba(0,229,160,0.3); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-secondary { background: transparent; color: var(--accent-2); border: 1px solid var(--accent-2); }
+.btn-secondary:hover:not(:disabled) { background: rgba(0,229,160,0.08); }
+.btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── STATS ───────────────────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.stat-val { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+.stat-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.class-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+.class-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px; border-radius: 6px;
+  background: var(--bg); border: 1px solid var(--border); font-size: 0.72rem;
+}
+.class-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
+.class-name { display: flex; align-items: center; flex: 1; }
+.class-count { font-weight: 600; color: var(--muted); font-size: 0.68rem; }
+
+/* ── TOGGLE ──────────────────────────────────────── */
+.overlay-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--muted); cursor: pointer; user-select: none; }
+.toggle-switch { width: 32px; height: 18px; background: var(--border-hi); border-radius: 9px; position: relative; transition: background 0.2s; }
+.toggle-switch.on { background: var(--accent); }
+.toggle-knob { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+.toggle-switch.on .toggle-knob { transform: translateX(14px); }
+
+/* ── MESSAGE ─────────────────────────────────────── */
+.message { padding: 10px 12px; border-radius: 8px; font-size: 0.72rem; line-height: 1.5; display: none; }
+.message.error   { background: rgba(255,79,107,0.1); border: 1px solid rgba(255,79,107,0.3); color: var(--danger); display: block; }
+.message.success { background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.25); color: var(--accent-2); display: block; }
+.message.info    { background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.25); color: var(--accent); display: block; }
+
+/* ── CANVAS AREA ─────────────────────────────────── */
+.canvas-area {
+  background: #07080c;
+  display: flex; align-items: center; justify-content: center;
+  overflow: auto; position: relative;
+}
+.canvas-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  color: var(--muted); text-align: center; pointer-events: none;
+}
+.canvas-placeholder svg { opacity: 0.15; }
+.canvas-placeholder p { font-size: 0.75rem; opacity: 0.6; }
+#canvas { max-width: 100%; max-height: 100%; display: none; box-shadow: 0 0 60px rgba(0,0,0,0.6); }
+
+/* ════════════════════════════════════════════════════
+   PROCESSING OVERLAY  (the main new feature)
+   ════════════════════════════════════════════════════ */
+#processingOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 8, 12, 0.92);
+  backdrop-filter: blur(6px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 150;
+  animation: overlayIn 0.25s ease;
+}
+#processingOverlay.active { display: flex; }
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Animated brain/ring */
+.proc-ring-wrap {
+  position: relative;
+  width: 100px; height: 100px;
+  display: flex; align-items: center; justify-content: center;
+}
+.proc-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  animation: ringRotate 1.4s linear infinite;
+}
+.proc-ring:nth-child(1) {
+  border-top-color: var(--accent);
+  animation-duration: 1.4s;
+}
+.proc-ring:nth-child(2) {
+  inset: 10px;
+  border-right-color: var(--accent-2);
+  animation-duration: 1.0s;
+  animation-direction: reverse;
+}
+.proc-ring:nth-child(3) {
+  inset: 20px;
+  border-bottom-color: #a78bfa;
+  animation-duration: 1.8s;
+}
+@keyframes ringRotate { to { transform: rotate(360deg); } }
+
+.proc-icon {
+  font-size: 2rem;
+  z-index: 1;
+  animation: iconBounce 1.5s ease-in-out infinite;
+}
+@keyframes iconBounce {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
+/* Title */
+.proc-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  text-align: center;
+}
+.proc-subtitle {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Step pipeline */
+.proc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 340px;
+  max-width: 90vw;
+}
+
+.proc-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.35s ease;
+  opacity: 0.4;
+}
+.proc-step.ps-active {
+  opacity: 1;
+  border-color: var(--accent);
+  background: rgba(79,124,255,0.08);
+  box-shadow: 0 0 16px rgba(79,124,255,0.15);
+}
+.proc-step.ps-done {
+  opacity: 1;
+  border-color: var(--accent-2);
+  background: rgba(0,229,160,0.06);
+}
+.proc-step.ps-hidden { display: none; }
+
+.ps-icon-wrap {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.proc-step.ps-active .ps-icon-wrap {
+  background: rgba(79,124,255,0.15);
+  border-color: var(--accent);
+  animation: stepPulse 1s ease infinite;
+}
+.proc-step.ps-done .ps-icon-wrap {
+  background: rgba(0,229,160,0.12);
+  border-color: var(--accent-2);
+}
+@keyframes stepPulse {
+  0%,100% { box-shadow: none; }
+  50%      { box-shadow: 0 0 10px rgba(79,124,255,0.4); }
+}
+
+.ps-text { flex: 1; }
+.ps-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+.ps-desc {
+  font-size: 0.64rem;
+  color: var(--muted);
+  margin-top: 2px;
+  display: block;
+}
+.ps-status {
+  font-size: 0.65rem;
+  font-weight: 600;
+  display: block;
+  margin-top: 2px;
+}
+.proc-step.ps-active  .ps-status { color: var(--accent); }
+.proc-step.ps-done    .ps-status { color: var(--accent-2); }
+
+.ps-tick {
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.proc-step.ps-done .ps-tick { opacity: 1; }
+
+/* Progress bar */
+.proc-progress-wrap {
+  width: 340px; max-width: 90vw;
+}
+.proc-progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.proc-progress-pct { font-weight: 600; color: var(--accent); font-size: 0.8rem; }
+.proc-bar-bg {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.proc-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Timer */
+.proc-timer {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+.proc-timer span { color: var(--text); font-weight: 600; }
+
+/* ── SCROLLBAR ───────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 4px; }
 
 </style>
-
 </head>
-
 <body>
 
-<h2>AI Auto Polygon Annotation</h2>
+<header>
+  <div class="logo"><span class="logo-dot"></span>PolyAnnot</div>
+  <span class="header-badge">YOLO v8 + SAM</span>
+</header>
 
-<input type="file" id="fileInput" accept="image/*">
+<main>
+  <!-- ── LEFT PANEL ── -->
+  <aside class="panel">
 
-<button onclick="upload()">Annotate</button>
+    <!-- UPLOAD -->
+    <div class="panel-section">
+      <div class="panel-label">Image Input</div>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept="image/*">
+        <span class="drop-icon">🖼️</span>
+        <p>Drop image here<br>or click to browse</p>
+        <div class="file-name" id="fileName"></div>
+      </div>
+    </div>
 
-<br><br>
+    <!-- MODE SELECTOR -->
+    <div class="panel-section">
+      <div class="panel-label">Annotation Mode</div>
+      <div class="mode-selector">
+        <div class="mode-card active" id="modePolygon" onclick="selectMode('polygon')">
+          <span class="mode-icon">🔷</span>
+          <span class="mode-title">Polygon</span>
+          <span class="mode-desc">YOLO + SAM<br>Precise masks</span>
+        </div>
+        <div class="mode-card" id="modeBbox" onclick="selectMode('bbox')">
+          <span class="mode-icon">⬜</span>
+          <span class="mode-title">Bounding Box</span>
+          <span class="mode-desc">YOLO only<br>Fast detection</span>
+        </div>
+      </div>
+      <div class="mode-info" id="modeInfo">
+        <span>Polygon:</span> Uses SAM for pixel-accurate segmentation. Slower but more precise.
+      </div>
+    </div>
 
-<canvas id="canvas"></canvas>
+    <!-- ACTIONS -->
+    <div class="panel-section">
+      <div class="panel-label">Actions</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary" id="annotateBtn" onclick="runAnnotation()" disabled>
+          ⚡ Run Annotation
+        </button>
+        <button class="btn btn-secondary" id="downloadBtn" onclick="downloadCOCO()" disabled>
+          ↓ Download COCO JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- MESSAGE -->
+    <div class="panel-section" id="messageWrap" style="display:none;">
+      <div class="message" id="message"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="panel-section" id="statsSection" style="display:none;">
+      <div class="panel-label">Results</div>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="statObjects">0</div>
+          <div class="stat-label">Objects</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statClasses">0</div>
+          <div class="stat-label">Classes</div>
+        </div>
+      </div>
+      <div class="panel-label">Detected Classes</div>
+      <div class="class-list" id="classList"></div>
+    </div>
+
+    <!-- OVERLAY TOGGLE -->
+    <div class="panel-section" id="overlaySection" style="display:none;">
+      <div class="panel-label">Display</div>
+      <div class="overlay-toggle" onclick="toggleOverlay()">
+        <div class="toggle-switch on" id="toggleSwitch"><div class="toggle-knob"></div></div>
+        Show Overlay
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CANVAS AREA ── -->
+  <section class="canvas-area" id="canvasArea">
+
+    <!-- empty state -->
+    <div class="canvas-placeholder" id="placeholder">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+        <rect x="8" y="8" width="64" height="64" rx="8" stroke="#4f7cff" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="30" cy="30" r="8" stroke="#4f7cff" stroke-width="2"/>
+        <path d="M8 52l18-16 12 12 10-8 24 20" stroke="#4f7cff" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <p>Upload an image and run annotation<br>to see results here</p>
+    </div>
+
+    <!-- canvas -->
+    <canvas id="canvas"></canvas>
+
+    <!-- ════ PROCESSING OVERLAY ════ -->
+    <div id="processingOverlay">
+
+      <!-- spinning rings -->
+      <div class="proc-ring-wrap">
+        <div class="proc-ring"></div>
+        <div class="proc-ring"></div>
+        <div class="proc-ring"></div>
+        <span class="proc-icon" id="procIcon">🧠</span>
+      </div>
+
+      <!-- title -->
+      <div>
+        <div class="proc-title" id="procTitle">AI is Annotating…</div>
+        <div class="proc-subtitle" id="procSubtitle">This may take 10–60 seconds depending on image complexity</div>
+      </div>
+
+      <!-- step pipeline -->
+      <div class="proc-steps" id="procSteps">
+
+        <div class="proc-step" id="ps1">
+          <div class="ps-icon-wrap">📤</div>
+          <div class="ps-text">
+            <span class="ps-label">Upload Image</span>
+            <span class="ps-desc">Sending image to server</span>
+            <span class="ps-status" id="ps1s">Waiting…</span>
+          </div>
+          <span class="ps-tick">✓</span>
+        </div>
+
+        <div class="proc-step" id="ps2">
+          <div class="ps-icon-wrap">🎯</div>
+          <div class="ps-text">
+            <span class="ps-label">YOLO Detection</span>
+            <span class="ps-desc">Detecting objects &amp; bounding boxes</span>
+            <span class="ps-status" id="ps2s">Waiting…</span>
+          </div>
+          <span class="ps-tick">✓</span>
+        </div>
+
+        <div class="proc-step" id="ps3">
+          <div class="ps-icon-wrap">🧠</div>
+          <div class="ps-text">
+            <span class="ps-label">SAM Segmentation</span>
+            <span class="ps-desc">Generating pixel-level masks</span>
+            <span class="ps-status" id="ps3s">Waiting…</span>
+          </div>
+          <span class="ps-tick">✓</span>
+        </div>
+
+        <div class="proc-step" id="ps4">
+          <div class="ps-icon-wrap">🔷</div>
+          <div class="ps-text">
+            <span class="ps-label">Polygon Extraction</span>
+            <span class="ps-desc">Converting masks to polygon points</span>
+            <span class="ps-status" id="ps4s">Waiting…</span>
+          </div>
+          <span class="ps-tick">✓</span>
+        </div>
+
+        <div class="proc-step" id="ps5">
+          <div class="ps-icon-wrap">📦</div>
+          <div class="ps-text">
+            <span class="ps-label">Export COCO JSON</span>
+            <span class="ps-desc">Saving annotation dataset</span>
+            <span class="ps-status" id="ps5s">Waiting…</span>
+          </div>
+          <span class="ps-tick">✓</span>
+        </div>
+
+      </div>
+
+      <!-- progress bar -->
+      <div class="proc-progress-wrap">
+        <div class="proc-progress-top">
+          <span id="procProgressLabel">Starting…</span>
+          <span class="proc-progress-pct" id="procPct">0%</span>
+        </div>
+        <div class="proc-bar-bg">
+          <div class="proc-bar-fill" id="procBar"></div>
+        </div>
+      </div>
+
+      <!-- elapsed timer -->
+      <div class="proc-timer">Elapsed: <span id="procTimer">0s</span></div>
+
+    </div>
+    <!-- end PROCESSING OVERLAY -->
+
+  </section>
+</main>
 
 <script>
 
-const canvas = document.getElementById("canvas")
-const ctx = canvas.getContext("2d")
+// ── STATE ───────────────────────────────────────────────
+let currentFile       = null;
+let currentItems      = [];
+let currentMode       = "polygon";
+let overlayVisible    = true;
+let originalImageData = null;
+let timerInterval     = null;
+let timerSeconds      = 0;
 
-let img = new Image()
+const CLASS_COLORS = [
+  "#4f7cff","#00e5a0","#ff4f6b","#ffd166","#a78bfa",
+  "#38bdf8","#fb923c","#f472b6","#86efac","#facc15",
+  "#e879f9","#34d399","#f87171","#60a5fa","#fb7185"
+];
+const getColor = id => CLASS_COLORS[id % CLASS_COLORS.length];
 
-function upload(){
+// ── PIPELINE DEFINITIONS ─────────────────────────────────
+// Each step: id, progressStart, progressEnd, label, duration estimate ms
+const POLYGON_STEPS = [
+  { id:"ps1", pct:5,  end:15,  label:"Uploading…",             icon:"📤", dur:600  },
+  { id:"ps2", pct:15, end:40,  label:"YOLO detecting…",        icon:"🎯", dur:1800 },
+  { id:"ps3", pct:40, end:80,  label:"SAM segmenting masks…",  icon:"🧠", dur:4000 },
+  { id:"ps4", pct:80, end:92,  label:"Extracting polygons…",   icon:"🔷", dur:800  },
+  { id:"ps5", pct:92, end:100, label:"Saving COCO JSON…",      icon:"📦", dur:500  },
+];
+const BBOX_STEPS = [
+  { id:"ps1", pct:5,  end:15,  label:"Uploading…",          icon:"📤", dur:600  },
+  { id:"ps2", pct:15, end:80,  label:"YOLO detecting…",     icon:"🎯", dur:2000 },
+  { id:"ps4", pct:80, end:92,  label:"Building annotations…",icon:"⬜", dur:500  },
+  { id:"ps5", pct:92, end:100, label:"Saving COCO JSON…",   icon:"📦", dur:500  },
+];
 
-let file=document.getElementById("fileInput").files[0]
+// ── MODE SELECTOR ─────────────────────────────────────────
+const MODE_INFO = {
+  polygon: "<span>Polygon:</span> Uses SAM for pixel-accurate segmentation. Slower but more precise.",
+  bbox:    "<span>Bounding Box:</span> YOLO detection only. Much faster, no SAM step needed."
+};
 
-let formData=new FormData()
-
-formData.append("file",file)
-
-fetch("/annotate",{
-
-method:"POST",
-
-body:formData
-
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-img.src=URL.createObjectURL(file)
-
-img.onload=function(){
-
-canvas.width=img.width
-canvas.height=img.height
-
-ctx.drawImage(img,0,0)
-
-drawPolygons(data.polygons)
-
+function selectMode(mode) {
+  currentMode = mode;
+  document.getElementById("modePolygon").classList.toggle("active",      mode === "polygon");
+  document.getElementById("modeBbox").classList.toggle("active",         mode === "bbox");
+  document.getElementById("modeBbox").classList.toggle("bbox-active",    mode === "bbox");
+  document.getElementById("annotateBtn").classList.toggle("bbox-mode",   mode === "bbox");
+  document.getElementById("modeInfo").innerHTML = MODE_INFO[mode];
+  clearResults();
 }
 
-})
+// ── FILE INPUT ────────────────────────────────────────────
+document.getElementById("fileInput").addEventListener("change", e => handleFile(e.target.files[0]));
+const dropZone = document.getElementById("dropZone");
+dropZone.addEventListener("dragover",  e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+dropZone.addEventListener("dragleave", ()  => dropZone.classList.remove("drag-over"));
+dropZone.addEventListener("drop", e => {
+  e.preventDefault(); dropZone.classList.remove("drag-over");
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
 
+function handleFile(file) {
+  if (!file) return;
+  currentFile = file;
+  document.getElementById("fileName").textContent = file.name;
+  document.getElementById("annotateBtn").disabled = false;
+  clearResults();
+
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  img.onload = function() {
+    const canvas = document.getElementById("canvas");
+    const ctx    = canvas.getContext("2d");
+    canvas.width  = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    canvas.style.display = "block";
+    document.getElementById("placeholder").style.display = "none";
+  };
 }
 
-function drawPolygons(polygons){
+// ── PROCESSING OVERLAY CONTROL ────────────────────────────
 
-ctx.strokeStyle="red"
-ctx.lineWidth=2
+function showOverlay() {
+  const overlay = document.getElementById("processingOverlay");
+  const steps   = currentMode === "polygon" ? POLYGON_STEPS : BBOX_STEPS;
 
-polygons.forEach(poly=>{
+  // Reset all steps
+  ["ps1","ps2","ps3","ps4","ps5"].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = "proc-step";
+    el.querySelector(".ps-status").textContent = "Waiting…";
+  });
 
-ctx.beginPath()
+  // Hide SAM step for bbox mode
+  document.getElementById("ps3").classList.toggle("ps-hidden", currentMode === "bbox");
 
-poly.forEach((p,i)=>{
+  // Reset progress
+  setProgress(0, "Starting…");
 
-if(i==0)
-ctx.moveTo(p[0],p[1])
-else
-ctx.lineTo(p[0],p[1])
+  // Update icon & subtitle for mode
+  document.getElementById("procIcon").textContent    = currentMode === "polygon" ? "🧠" : "🎯";
+  document.getElementById("procSubtitle").textContent =
+    currentMode === "polygon"
+      ? "YOLO + SAM pipeline — may take 15–60s"
+      : "YOLO detection only — typically 5–15s";
 
-})
+  overlay.classList.add("active");
 
-ctx.closePath()
-ctx.stroke()
+  // Start timer
+  timerSeconds = 0;
+  document.getElementById("procTimer").textContent = "0s";
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    document.getElementById("procTimer").textContent = timerSeconds + "s";
+  }, 1000);
 
-})
+  // Animate steps with realistic timing
+  let cumulative = 0;
+  steps.forEach((step, i) => {
+    setTimeout(() => activateStep(step, i === steps.length - 1), cumulative);
+    cumulative += step.dur;
+  });
+}
 
+function activateStep(step, isLast) {
+  // Mark previous steps done
+  ["ps1","ps2","ps3","ps4","ps5"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.classList.contains("ps-active")) {
+      el.classList.remove("ps-active");
+      el.classList.add("ps-done");
+      el.querySelector(".ps-status").textContent = "Done ✓";
+    }
+  });
+
+  const el = document.getElementById(step.id);
+  if (!el) return;
+  el.classList.remove("ps-done");
+  el.classList.add("ps-active");
+  el.querySelector(".ps-status").textContent = step.label;
+
+  // Animate progress bar smoothly from step.pct → step.end
+  animateProgress(step.pct, step.end, step.dur * 0.85, step.label);
+}
+
+function animateProgress(from, to, duration, label) {
+  const bar   = document.getElementById("procBar");
+  const pct   = document.getElementById("procPct");
+  const lbl   = document.getElementById("procProgressLabel");
+  lbl.textContent = label;
+
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+    const val  = Math.round(from + (to - from) * ease);
+    bar.style.width = val + "%";
+    pct.textContent = val + "%";
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function setProgress(val, label) {
+  document.getElementById("procBar").style.width      = val + "%";
+  document.getElementById("procPct").textContent       = val + "%";
+  document.getElementById("procProgressLabel").textContent = label;
+}
+
+function hideOverlay(success) {
+  clearInterval(timerInterval);
+
+  const steps = currentMode === "polygon" ? POLYGON_STEPS : BBOX_STEPS;
+
+  if (success) {
+    // Mark all steps done instantly
+    steps.forEach(step => {
+      const el = document.getElementById(step.id);
+      if (el) {
+        el.classList.remove("ps-active");
+        el.classList.add("ps-done");
+        el.querySelector(".ps-status").textContent = "Done ✓";
+      }
+    });
+    setProgress(100, "Complete!");
+    document.getElementById("procTitle").textContent = "Annotation Complete!";
+    document.getElementById("procIcon").textContent  = "✅";
+
+    // Hide after short delay to let user see "complete"
+    setTimeout(() => {
+      document.getElementById("processingOverlay").classList.remove("active");
+      document.getElementById("procTitle").textContent = "AI is Annotating…";
+    }, 1400);
+  } else {
+    document.getElementById("processingOverlay").classList.remove("active");
+  }
+}
+
+// ── MAIN ANNOTATION ───────────────────────────────────────
+async function runAnnotation() {
+  if (!currentFile) return;
+
+  document.getElementById("annotateBtn").disabled  = true;
+  document.getElementById("downloadBtn").disabled  = true;
+  clearResults();
+  showOverlay();
+
+  try {
+    const formData = new FormData();
+    formData.append("file", currentFile);
+    formData.append("mode", currentMode);
+
+    const res = await fetch("/annotate", { method: "POST", body: formData });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Server error");
+    }
+
+    const data = await res.json();
+    hideOverlay(true);
+
+    currentItems = data.polygons || [];
+
+    setTimeout(() => {
+      document.getElementById("annotateBtn").disabled = false;
+      if (currentItems.length === 0) {
+        showMessage("No objects detected in this image.", "info");
+      } else {
+        const modeLabel = currentMode === "polygon" ? "polygon" : "bounding box";
+        showMessage(
+          `✓ ${data.stats.total_objects} object(s) annotated with ${modeLabel} mode across ${Object.keys(data.stats.classes).length} class(es). Took ${timerSeconds}s.`,
+          "success"
+        );
+        renderStats(data.stats);
+        redrawCanvas();
+      }
+      document.getElementById("downloadBtn").disabled = false;
+    }, 1500); // slight delay so "complete" overlay is visible first
+
+  } catch (err) {
+    hideOverlay(false);
+    document.getElementById("annotateBtn").disabled = false;
+    showMessage("Error: " + err.message, "error");
+  }
+}
+
+// ── DRAW ──────────────────────────────────────────────────
+function redrawCanvas() {
+  const canvas = document.getElementById("canvas");
+  const ctx    = canvas.getContext("2d");
+  if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
+  if (!overlayVisible || currentItems.length === 0) return;
+
+  currentItems.forEach(item => {
+    const color = getColor(item.class_id);
+    const label = `${item.class_name} ${(item.confidence * 100).toFixed(0)}%`;
+
+    if (item.type === "polygon" && item.points) {
+      const pts = item.points;
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+      ctx.closePath();
+      ctx.fillStyle   = color + "33";
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 2;
+      ctx.stroke();
+      if (item.bbox) drawLabel(ctx, label, item.bbox[0], item.bbox[1], color);
+
+    } else if (item.type === "bbox" && item.bbox) {
+      const [bx, by, bw, bh] = item.bbox;
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 2.5;
+      ctx.strokeRect(bx, by, bw, bh);
+      ctx.fillStyle   = color + "22";
+      ctx.fillRect(bx, by, bw, bh);
+      const cs = 12;
+      ctx.lineWidth = 3;
+      [[bx,by],[bx+bw,by],[bx,by+bh],[bx+bw,by+bh]].forEach(([cx,cy]) => {
+        const dx = cx === bx ? 1 : -1;
+        const dy = cy === by ? 1 : -1;
+        ctx.beginPath();
+        ctx.moveTo(cx + dx*cs, cy);
+        ctx.lineTo(cx, cy);
+        ctx.lineTo(cx, cy + dy*cs);
+        ctx.stroke();
+      });
+      drawLabel(ctx, label, bx, by, color);
+    }
+  });
+}
+
+function drawLabel(ctx, text, x, y, color) {
+  ctx.font = "bold 12px JetBrains Mono, monospace";
+  const tw = ctx.measureText(text).width;
+  const ly = y > 20 ? y - 18 : y + 2;
+  ctx.fillStyle = color;
+  ctx.fillRect(x, ly, tw + 10, 18);
+  ctx.fillStyle = "#000";
+  ctx.fillText(text, x + 5, ly + 13);
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function renderStats(stats) {
+  document.getElementById("statsSection").style.display   = "block";
+  document.getElementById("overlaySection").style.display = "block";
+  document.getElementById("statObjects").textContent = stats.total_objects;
+  document.getElementById("statClasses").textContent = Object.keys(stats.classes).length;
+
+  const list = document.getElementById("classList");
+  list.innerHTML = "";
+  Object.entries(stats.classes).forEach(([name, count]) => {
+    const match = currentItems.find(p => p.class_name === name);
+    const color = getColor(match ? match.class_id : 0);
+    const item  = document.createElement("div");
+    item.className = "class-item";
+    item.innerHTML = `
+      <span class="class-name">
+        <span class="class-dot" style="background:${color}"></span>${name}
+      </span>
+      <span class="class-count">${count}</span>`;
+    list.appendChild(item);
+  });
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function toggleOverlay() {
+  overlayVisible = !overlayVisible;
+  document.getElementById("toggleSwitch").className = "toggle-switch" + (overlayVisible ? " on" : "");
+  redrawCanvas();
+}
+function downloadCOCO() { window.location.href = "/download"; }
+function showMessage(text, type) {
+  const wrap = document.getElementById("messageWrap");
+  const msg  = document.getElementById("message");
+  wrap.style.display = "block";
+  msg.className = "message " + type;
+  msg.textContent = text;
+}
+function clearResults() {
+  document.getElementById("statsSection").style.display   = "none";
+  document.getElementById("overlaySection").style.display = "none";
+  document.getElementById("messageWrap").style.display    = "none";
+  document.getElementById("classList").innerHTML = "";
+  currentItems = [];
 }
 
 </script>
-
 </body>
-
 </html>
