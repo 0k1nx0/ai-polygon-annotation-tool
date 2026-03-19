@@ -31,7 +31,6 @@ An AI-powered automatic image annotation system that generates **polygon** and *
 ---
 
 ## 🧠 How It Works
-
 ```
 Upload Image
      ↓
@@ -60,9 +59,8 @@ COCO JSON Export  →  Ready-to-use Dataset
 ---
 
 ## 🏗️ Project Structure
-
 ```
-ai_polygon_tool/
+ai-polygon-annotation-tool/
 │
 ├── main.py                    # FastAPI backend
 ├── static/
@@ -75,6 +73,7 @@ ai_polygon_tool/
 │
 ├── sam_vit_h_4b8939.pth       # SAM model weights (download separately)
 ├── yolov8x-seg.pt             # YOLO weights (auto-downloaded)
+├── Dockerfile                 # For HuggingFace deployment
 ├── requirements.txt
 └── README.md
 ```
@@ -85,7 +84,7 @@ ai_polygon_tool/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/ai-polygon-annotation-tool.git
+git clone https://github.com/0k1nx0/ai-polygon-annotation-tool.git
 cd ai-polygon-annotation-tool
 ```
 
@@ -126,7 +125,6 @@ http://127.0.0.1:8000
 ---
 
 ## 📊 Output Format (COCO JSON)
-
 ```json
 {
   "images": [{ "id": 1, "file_name": "image.jpg", "width": 640, "height": 480 }],
@@ -154,6 +152,24 @@ http://127.0.0.1:8000
 |---|---|---|---|
 | 🔷 Polygon | YOLOv8 + SAM | Slower (15–60s) | Pixel-precise |
 | ⬜ Bounding Box | YOLOv8 only | Fast (5–15s) | Object-level |
+
+---
+
+## 🔌 Import Into Other Platforms
+
+The exported **COCO JSON** format is universally compatible with all major annotation and training platforms:
+
+| Platform | How to Import |
+|---|---|
+| **CVAT** | Projects → Create Task → Upload COCO JSON |
+| **Roboflow** | Upload → COCO JSON format |
+| **LabelImg** | Supports COCO JSON import |
+| **Detectron2** | Native COCO JSON support |
+| **YOLOv8 Training** | Convert COCO → YOLO using `ultralytics` |
+| **MMDetection** | Native COCO JSON support |
+| **Hugging Face Datasets** | Load via `datasets` library |
+
+> 💡 The COCO JSON output from this tool is **standard format** — no conversion needed for most platforms.
 
 ---
 
@@ -198,4 +214,3 @@ MIT License — free to use, modify, and distribute.
 |---|---|
 | Mohammed Abdullah | [@0k1nx0](https://github.com/0k1nx0) |
 | Karan Goyal | [@karangoyal09](https://github.com/karangoyal09) |
-
