@@ -166,18 +166,15 @@ http://127.0.0.1:8000
 
 ---
 
-## 🗺️ Roadmap
+## 🔮 Future Scope
 
-- [x] Polygon annotation (YOLO + SAM)
-- [x] Bounding box annotation (YOLO only)
-- [x] COCO JSON export
-- [x] Multi-class support
-- [x] Live processing overlay
-- [ ] YOLO format export (.txt)
-- [ ] Batch image processing
-- [ ] Manual polygon editing
-- [ ] Multi-image dataset accumulation
-- [ ] Docker support
+These are potential improvements that could be made to extend the project:
+
+- YOLO format export (.txt)
+- Batch image processing
+- Manual polygon editing
+- Multi-image dataset accumulation
+- Model optimization for speed
 
 ---
 
