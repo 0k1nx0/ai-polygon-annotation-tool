@@ -193,7 +193,7 @@ MIT License — free to use, modify, and distribute.
 - [Meta Segment Anything Model](https://github.com/facebookresearch/segment-anything)
 - [FastAPI](https://fastapi.tiangolo.com)
 
-- ## 👨‍💻 Developers
+## 👨‍💻 Developers
 
 | Developer | GitHub |
 |---|---|
