@@ -12,7 +12,7 @@ An AI-powered automatic image annotation system that generates **polygon** and *
 
 ## 🚀 Demo
 
-> 🤗 Try it live on **Hugging Face Spaces** → [Coming Soon]
+> 🤗 Try it live on **Hugging Face Spaces** → [Click Here](https://0k1nx0-ai-polygon-annotation-tool.hf.space)
 
 ---
 
