@@ -192,3 +192,10 @@ MIT License — free to use, modify, and distribute.
 - [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics)
 - [Meta Segment Anything Model](https://github.com/facebookresearch/segment-anything)
 - [FastAPI](https://fastapi.tiangolo.com)
+
+- ## 👨‍💻 Developers
+
+| Developer | GitHub |
+|---|---|
+| Mohammed Abdullah | [@0k1nx0](https://github.com/0k1nx0) |
+| Karan Goyal | [@karangoyal09](https://github.com/karangoyal09) |
