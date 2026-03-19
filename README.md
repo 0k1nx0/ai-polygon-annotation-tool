@@ -62,20 +62,21 @@ COCO JSON Export  →  Ready-to-use Dataset
 ```
 ai-polygon-annotation-tool/
 │
-├── main.py                    # FastAPI backend
 ├── static/
 │   └── index.html             # Frontend UI
-├── uploads/                   # Temporary uploaded images
-├── dataset/
-│   ├── images/                # Saved images
-│   └── annotations/
-│       └── dataset.json       # COCO annotations output
 │
-├── sam_vit_h_4b8939.pth       # SAM model weights (download separately)
-├── yolov8x-seg.pt             # YOLO weights (auto-downloaded)
-├── Dockerfile                 # For HuggingFace deployment
-├── requirements.txt
-└── README.md
+├── main.py                    # FastAPI backend
+├── Dockerfile                 # HuggingFace deployment
+├── requirements.txt           # Python dependencies
+├── README.md                  # Project documentation
+├── .gitignore                 # Git ignore rules
+│
+│   # These are created automatically when you run the project:
+│   # uploads/                 → temporary uploaded images
+│   # dataset/images/          → saved images
+│   # dataset/annotations/     → COCO JSON output
+│   # sam_vit_h_4b8939.pth     → download separately (2.4GB)
+│   # yolov8x-seg.pt           → auto-downloaded on first run
 ```
 
 ---
