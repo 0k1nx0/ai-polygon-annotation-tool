@@ -1,4 +1,4 @@
----
+ï»¿---
 title: AI Polygon Annotation Tool
 emoji: ???
 colorFrom: blue
@@ -8,7 +8,7 @@ app_file: main.py
 pinned: false
 ---
 
-# PolyAnnot v2.0 — AI Polygon Annotation Tool
+# PolyAnnot v2.0 ï¿½ AI Polygon Annotation Tool
 
 AI-powered image annotation tool with polygon and bounding box support.
 
