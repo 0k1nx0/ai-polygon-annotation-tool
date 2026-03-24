@@ -1,4 +1,4 @@
-﻿---
+---
 title: AI Polygon Annotation Tool
 emoji: 🔷
 colorFrom: blue
