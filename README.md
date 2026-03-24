@@ -1,132 +1,137 @@
----
-title: AI Polygon Annotation Tool
-emoji: 🔷
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_file: main.py
-pinned: false
----
-
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-2.0-blue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" />
-<img src="https://img.shields.io/badge/python-3.10-blue?style=for-the-badge&logo=python&logoColor=white" />
-<img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
-<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+# 🔷 PolyAnnot v2.0
 
-<br/><br/>
+### AI-Powered Automatic Image Annotation — No Manual Labeling Needed
 
-# PolyAnnot v2.0
-
-### AI-Powered Automatic Image Annotation Tool
-
-**No manual labeling. No expensive software. Just upload and annotate.**
+[![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-7c3aed?style=flat-square)](https://ultralytics.com)
+[![SAM](https://img.shields.io/badge/SAM-Meta_AI-0057FF?style=flat-square)](https://segment-anything.com)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 
 <br/>
 
-[![Live Demo](https://img.shields.io/badge/Try%20Live%20Demo-HuggingFace%20Spaces-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://0k1nx0-ai-polygon-annotation-tool.hf.space)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/0k1nx0/ai-polygon-annotation-tool)
-
-<br/>
+> 🤗 Try it live on **Hugging Face Spaces** → **[Click Here](https://0k1nx0-ai-polygon-annotation-tool.hf.space)**
 
 </div>
 
 ---
 
-## What is PolyAnnot?
+## 📌 What is PolyAnnot?
 
-**PolyAnnot** is a free, open-source web app that automatically annotates your images using AI — no drawing, no clicking, no manual work.
+**PolyAnnot** is a free, open-source web app that automatically annotates your images using AI.
 
-You upload an image. The AI detects every object, draws precise polygon outlines around them, and exports everything as a **COCO JSON dataset** — ready to use for training your own AI models.
+Upload an image → the AI detects every object → draws precise polygon outlines → exports a ready-to-use **COCO JSON dataset**. No drawing, no clicking, no manual work.
 
-It uses two of the most powerful open-source AI models:
-- **YOLOv8x** by Ultralytics — detects what objects are in the image
-- **SAM ViT-H** by Meta AI — draws pixel-perfect masks around each object
+It uses two of the most powerful open-source vision models:
+- 🎯 **YOLOv8x** by Ultralytics — detects objects and their locations
+- 🧠 **SAM ViT-H** by Meta AI — draws pixel-perfect masks around each object
 
 > Perfect for students, researchers, and developers building computer vision projects.
 
 ---
 
-## Features
+## ✨ What's New in v2.0
 
 | Feature | Description |
 |---|---|
-| 🤖 Auto Annotation | Detects and annotates objects with zero manual effort |
-| 🔷 Polygon Mode | Pixel-perfect outlines using YOLOv8 + SAM |
-| ⬜ Bounding Box Mode | Fast rectangular annotations using YOLOv8 only |
-| ✏️ Correction Tools | Drag polygon points, resize bounding boxes |
-| 👍 Review System | Thumbs up / down feedback per annotation |
-| ↩️ Undo / Redo | Full history with Ctrl+Z and Ctrl+Y |
-| 🎨 Multi-class Colors | Each detected class gets a unique color |
-| 🔍 Zoom & Pan | Inspect large images comfortably |
-| 📦 COCO JSON Export | Standard format compatible with all platforms |
-| 🗄️ Feedback Database | All corrections saved locally in SQLite |
+| 👍 Annotation Review | Thumbs up / down per detected object |
+| ✏️ Polygon Correction | Drag, add, or delete polygon points |
+| ⬜ BBox Correction | Drag corners and edges to adjust |
+| ↩️ Undo / Redo | Full history — Ctrl+Z and Ctrl+Y |
+| 🗄️ Training Dataset | Feedback saved to SQLite automatically |
 | ☁️ Auto Cloud Backup | Feedback synced to HuggingFace Dataset repo |
+| 🔲 Sidebar Toggle | Clean workspace when you need it |
+| 🔍 Zoom & Pan | Navigate large images comfortably |
+| 🎨 Multi-class Colors | Unique color per class with confidence labels |
+| 📦 COCO JSON Export | Corrected annotations in standard format |
 
 ---
 
-## Live Demo
-
-**[Try it now on Hugging Face Spaces](https://0k1nx0-ai-polygon-annotation-tool.hf.space)**
-
-Upload any image and get instant AI annotations — no setup, no install, runs in your browser.
-
----
-
-## How It Works
+## 🧠 How It Works
 
 ```
-1. Upload Image
-       │
-       ▼
-2. YOLOv8x Detection
-   → Finds all objects in the image
-   → Returns bounding boxes + class labels + confidence scores
-       │
-       ▼  (Polygon mode only)
-3. SAM ViT-H Segmentation
-   → Uses YOLO boxes as input prompts
-   → Returns pixel-level masks for each object
-       │
-       ▼
-4. OpenCV Contour Extraction
-   → Converts pixel masks into polygon coordinates
-       │
-       ▼
-5. Review & Correct  (optional)
-   → User edits points, gives thumbs up/down feedback
-       │
-       ▼
-6. Export COCO JSON
-   → Ready-to-use training dataset
+Upload Image
+     │
+     ▼
+YOLOv8x Detection  ──►  Bounding Boxes + Class Labels + Confidence
+     │
+     ▼  (Polygon mode only)
+SAM ViT-H Segmentation  ──►  Pixel-level Masks
+     │
+     ▼
+OpenCV Contours  ──►  Polygon Coordinates
+     │
+     ▼
+Review & Correct  ──►  Thumbs up/down + Edit Points
+     │
+     ▼
+COCO JSON Export  ──►  Ready-to-use Training Dataset
 ```
 
 ---
 
-## Annotation Modes
+## 🎯 Annotation Modes
 
-| | Polygon Mode | Bounding Box Mode |
-|---|---|---|
-| **Models Used** | YOLOv8 + SAM | YOLOv8 only |
-| **Speed** | 15 – 60 seconds | 3 – 15 seconds |
-| **Precision** | Pixel-perfect outline | Object-level rectangle |
-| **Best For** | Segmentation training | Detection training |
+| Mode | Models Used | Speed | Accuracy | Best For |
+|---|---|---|---|---|
+| 🔷 **Polygon** | YOLOv8 + SAM | 15 – 60s | Pixel-precise | Segmentation training |
+| ⬜ **Bounding Box** | YOLOv8 only | 3 – 15s | Object-level | Detection training |
 
 ---
 
-## Local Setup
+## ⚙️ Tech Stack
 
-> **Requirements:** Python 3.9+, Git, ~4 GB free disk space
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI + Uvicorn |
+| Object Detection | YOLOv8x (Ultralytics) |
+| Segmentation | SAM ViT-H (Meta AI) |
+| Image Processing | OpenCV + NumPy |
+| Database | SQLite |
+| Frontend | HTML5 + Canvas API |
+| Deployment | Docker on HuggingFace Spaces |
+| Output Format | COCO JSON |
 
-**Step 1 — Clone the repository**
+---
+
+## 🏗️ Project Structure
+
+```
+ai-polygon-annotation-tool/
+│
+├── static/
+│   └── index.html           # Frontend — Canvas UI, annotation controls
+├── main.py                  # Backend — FastAPI, AI models, feedback API
+├── Dockerfile               # Container config for HuggingFace deployment
+├── requirements.txt         # Python dependencies
+├── README.md                # This file
+└── .gitignore
+```
+
+> 📝 The following are created automatically at runtime and are **not** stored in the repo:
+> - `uploads/` → temporary uploaded images
+> - `dataset/images/` → saved annotated images
+> - `dataset/annotations/dataset.json` → COCO JSON output
+> - `feedback/feedback.db` → SQLite feedback database
+> - `yolov8x-seg.pt` → auto-downloaded on first run (~137 MB)
+> - `sam_vit_h_4b8939.pth` → auto-downloaded on first run (~2.5 GB)
+
+---
+
+## 🔧 Local Setup
+
+> **Prerequisites:** Python 3.9+, Git, ~4 GB free disk space
+
+### 1. Clone the repository
 ```bash
 git clone https://github.com/0k1nx0/ai-polygon-annotation-tool.git
 cd ai-polygon-annotation-tool
 ```
 
-**Step 2 — Create a virtual environment**
+### 2. Create a virtual environment
 ```bash
 python -m venv venv
 
@@ -137,61 +142,32 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-**Step 3 — Install dependencies**
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 pip install git+https://github.com/facebookresearch/segment-anything.git
 ```
 
-**Step 4 — Run the server**
+### 4. Run the server
 ```bash
 uvicorn main:app --reload
 ```
 
-**Step 5 — Open in your browser**
+### 5. Open in your browser
 ```
 http://127.0.0.1:8000
 ```
 
-> On first run, YOLOv8 (~137 MB) and SAM (~2.5 GB) weights are downloaded automatically. This takes a few minutes on first launch only.
+> ⚠️ On first run, YOLOv8 (~137 MB) and SAM (~2.5 GB) weights are downloaded automatically. Allow a few minutes on first launch only.
 
 ---
 
-## Project Structure
-
-```
-ai-polygon-annotation-tool/
-│
-├── static/
-│   └── index.html           # Frontend (Canvas UI, controls)
-├── main.py                  # Backend (FastAPI, AI models, feedback API)
-├── Dockerfile               # Container config for HuggingFace
-├── requirements.txt         # Python dependencies
-├── README.md                # This file
-└── .gitignore
-```
-
-Generated automatically at runtime:
-```
-uploads/                     # Temporary uploaded images
-dataset/
-  ├── images/                # Saved copies of annotated images
-  └── annotations/
-      └── dataset.json       # COCO JSON output
-feedback/
-  └── feedback.db            # SQLite feedback database
-yolov8x-seg.pt               # Auto-downloaded on first run (~137 MB)
-sam_vit_h_4b8939.pth         # Auto-downloaded on first run (~2.5 GB)
-```
-
----
-
-## Output Format — COCO JSON
+## 📊 Output Format — COCO JSON
 
 ```json
 {
   "images": [
-    { "id": 1, "file_name": "photo.jpg", "width": 1280, "height": 720 }
+    { "id": 1, "file_name": "image.jpg", "width": 1280, "height": 720 }
   ],
   "annotations": [
     {
@@ -213,48 +189,36 @@ sam_vit_h_4b8939.pth         # Auto-downloaded on first run (~2.5 GB)
 
 ---
 
-## Platform Compatibility
+## 🔌 Platform Compatibility
 
-The COCO JSON output works directly with every major ML platform — no conversion needed.
+The exported COCO JSON works directly with every major ML platform — no conversion needed.
 
 | Platform | How to Import |
 |---|---|
-| **Roboflow** | Upload → Select COCO JSON |
+| **Roboflow** | Upload → Select COCO JSON format |
 | **CVAT** | Projects → Create Task → Upload COCO JSON |
-| **Detectron2** | Native COCO JSON support |
-| **MMDetection** | Native COCO JSON support |
-| **YOLOv8 Training** | Convert via `ultralytics` COCO to YOLO utility |
+| **Detectron2** | Native COCO JSON support out of the box |
+| **MMDetection** | Native COCO JSON support out of the box |
+| **YOLOv8 Training** | Convert via `ultralytics` COCO → YOLO utility |
 | **Hugging Face Datasets** | Load directly with the `datasets` library |
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend | FastAPI + Uvicorn |
-| Object Detection | YOLOv8x (Ultralytics) |
-| Segmentation | SAM ViT-H (Meta AI) |
-| Image Processing | OpenCV + NumPy |
-| Database | SQLite |
-| Frontend | HTML5 + Canvas API |
-| Deployment | Docker on HuggingFace Spaces |
+> 💡 Standard COCO format — no conversion needed for most platforms.
 
 ---
 
-## System Requirements
+## ⚠️ System Requirements
 
 | | Minimum | Recommended |
 |---|---|---|
 | Python | 3.9 | 3.10 |
 | RAM | 8 GB | 16 GB+ |
 | Disk | 4 GB | 10 GB+ |
-| GPU | Not required | NVIDIA CUDA (much faster) |
+| GPU | Not required | NVIDIA CUDA (10x faster) |
 | OS | Windows / Mac / Linux | Any |
 
 ---
 
-## Roadmap
+## 🔮 Roadmap
 
 - [x] YOLOv8 + SAM polygon annotation
 - [x] Bounding box mode
@@ -272,7 +236,7 @@ The COCO JSON output works directly with every major ML platform — no conversi
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome!
 
@@ -284,13 +248,13 @@ Contributions are welcome!
 
 ---
 
-## License
+## 📄 License
 
 MIT License — free to use, modify, and distribute for personal and commercial projects.
 
 ---
 
-## Acknowledgements
+## 🙌 Acknowledgements
 
 - [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics)
 - [Meta Segment Anything Model](https://github.com/facebookresearch/segment-anything)
@@ -298,7 +262,7 @@ MIT License — free to use, modify, and distribute for personal and commercial 
 
 ---
 
-## Developers
+## 👨‍💻 Developers
 
 | Developer | Role | GitHub |
 |---|---|---|
@@ -308,9 +272,7 @@ MIT License — free to use, modify, and distribute for personal and commercial 
 ---
 
 <div align="center">
-
-If this project helped you, please give it a star on GitHub!
-
-Built with YOLOv8 · SAM · FastAPI · Docker
-
+  <sub>⭐ If this project helped you, please give it a star on GitHub!</sub>
+  <br/>
+  <sub>Built with ❤️ using YOLOv8 · SAM · FastAPI · Docker</sub>
 </div>
