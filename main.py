@@ -139,7 +139,16 @@ init_db()
 
 yolo_model = YOLO("yolov8x-seg.pt")
 
-sam = sam_model_registry["vit_h"](checkpoint="sam_vit_h_4b8939.pth")
+SAM_CHECKPOINT = "sam_vit_h_4b8939.pth"
+SAM_URL = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth"
+
+if not os.path.exists(SAM_CHECKPOINT):
+    print("Downloading SAM checkpoint (~2.5GB), please wait...")
+    import urllib.request
+    urllib.request.urlretrieve(SAM_URL, SAM_CHECKPOINT)
+    print("SAM checkpoint downloaded.")
+
+sam = sam_model_registry["vit_h"](checkpoint=SAM_CHECKPOINT)
 sam.to("cuda" if torch.cuda.is_available() else "cpu")
 predictor = SamPredictor(sam)
 
